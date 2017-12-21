@@ -2,7 +2,7 @@
 .SYNOPSIS
 	Check Backup Exec last scheduled job status.
 .DESCRIPTION
-	Check Backup Exec last scheduled job status. and returns Nagios output and code.
+	Check Backup Exec last scheduled job status and returns Nagios output and code.
 PARAMETER Hours
 	Number of hours since now to check for backup jobs.
 	Default 48.
