@@ -17,8 +17,18 @@ Param(
 	[ValidateNotNullOrEmpty()]
 	[int]$Hours=48
 )
+
+if ($((Get-WmiObject win32_operatingsystem).version) -match "6.1"){
+    Add-PSSnapin windows.serverbackup
+}
 # Get backup status
-$BackupSummary = Get-WBSummary
+try{
+    $BackupSummary = Get-WBSummary -ErrorAction Stop
+}catch{
+    Write-Output "UNKNOWN: Could not get Windows Server Backup information. Try running in PowerShell console: Add-WindowsFeature -Name Backup-Tools | NumberOfVersions=0;;;;"
+    $host.SetShouldExit(3)
+    Exit 3
+}
 if ($BackupSummary){
     # Check last backup
     $LastSuccessfulBackupTime = ($BackupSummary.LastSuccessfulBackupTime).Date
@@ -28,16 +38,16 @@ if ($BackupSummary){
         $PerfmonOutput = " | NumberOfVersions=$($BackupSummary.NumberOfVersions);;;;"
         # If last backup has been performed in time and its result is ok.
         If ( (($BackupSummary.LastSuccessfulBackupTime).Date -ge (get-date).AddHours(-$($Hours))) -and $BackupSummary.LastBackupResultHR -eq '0'){
-            Write-Output "OK: last backup date $($LastSuccessfulBackupTime). $($BackupSummary.NumberOfVersions) versions stored.$($PerfmonOutput)"
+            Write-Output "OK: last backup date $($BackupSummary.LastSuccessfulBackupTime). $($BackupSummary.NumberOfVersions) versions stored.$($PerfmonOutput)"
             $host.SetShouldExit(0)
         }
         # If last backup has not been performed in time or its result is not ok.
         Else{
             if ($BackupSummary.DetailedMessage){
-                Write-Output "CRITICAL: Last backup result on error: $($BackupSummary.DetailedMessage) Last successful backup date: $LastSuccessfulBackupTime.$($PerfmonOutput)"            
+                Write-Output "CRITICAL: Last backup result on error: $($BackupSummary.DetailedMessage) Last successful backup date: $($BackupSummary.LastSuccessfulBackupTime).$($PerfmonOutput)"            
             }
             else{
-                Write-Output "CRITICAL: Last backup result on unspecified error. Last successful backup date: $LastSuccessfulBackupTime.$($PerfmonOutput)"
+                Write-Output "CRITICAL: Last backup result on unspecified error. Last successful backup date: $($BackupSummary.LastSuccessfulBackupTime).$($PerfmonOutput)"
             }
             $host.SetShouldExit(2)
         }
