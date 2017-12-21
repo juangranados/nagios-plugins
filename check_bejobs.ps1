@@ -62,7 +62,7 @@ ForEach ($Job in $Jobs){
 $PerformanceOutput = " | SuccessJobs=$($SuccessJobs);;;; FailedJobs=$($FailedJobs);1;1;; BackupSize=$([math]::round($TotalDataSizeBytes/1GB,3))GB;;;;"
 
 If ($ExitCode -eq 0){
-    Write-Host "All last backups jobs within $($Hours) hours succeded.$($PerformanceOutput)"
+    Write-Host "All last backups jobs within $($Hours) hours successful.$($PerformanceOutput)"
     $host.SetShouldExit(0)
 }
 
