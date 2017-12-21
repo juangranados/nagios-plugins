@@ -66,9 +66,11 @@ If ($ExitCode -eq 0){
     $host.SetShouldExit(0)
 }
 
-If ($ExitCode -eq 1){
+ElseIf ($ExitCode -eq 1){
     Write-Host "WARNING: $($Output)$($PerformanceOutput)"
     $host.SetShouldExit(1)
 }
-Write-Host "CRITICAL: $($Output)$($PerformanceOutput)"
-$host.SetShouldExit(2)
+Else{
+	Write-Host "CRITICAL: $($Output)$($PerformanceOutput)"
+	$host.SetShouldExit(2)
+}
