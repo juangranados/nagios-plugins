@@ -9,6 +9,10 @@
 .PARAMETER Critical
 	Number of failed replications for critical treshold.
 	Default 5.
+.OUTPUTS
+    OK: AD replication successful.
+    WARNING: Failed replications equal to Warning treshold.
+    CRITICAL: Failed replications equal to Critical treshold.
 .EXAMPLE
 	.\Get-ADReplication.ps1 -Warning 5 -Critical 10
 .NOTES 
