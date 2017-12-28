@@ -92,13 +92,13 @@ $Output += "| WebsitesRunning=$($WebsitesRunning);0;0;0;$($WebsitesTotal) AppPoo
 
 If ($ExitCode -eq 2){
     Write-Output "CRITICAL: $($Output)"
-    #$Host.SetShouldExit(2)
+    $Host.SetShouldExit(2)
 }
 ElseIf ($ExitCode -eq 1){
     Write-Output "WARNING: $($Output)"
-    #$Host.SetShouldExit(1)
+    $Host.SetShouldExit(1)
 }
 else{
     Write-Output "OK: All Websites and AppPools Running. $($Output)"
-    #$Host.SetShouldExit(0)
+    $Host.SetShouldExit(0)
 }
