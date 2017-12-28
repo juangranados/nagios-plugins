@@ -10,9 +10,9 @@
 	AppPools to check status.
 	Default All.
 .OUTPUTS
-    0: All Websites and AppPools Running.
-    1: Websites or AppPools stopped, but started manually.
-    2: Websites or AppPools stopped and could not started.
+    OK: All Websites and AppPools Running.
+    WARNING: Websites or AppPools stopped, but started manually.
+    CRITICAL: Websites or AppPools stopped and could not started.
 .EXAMPLE
     Check a list of Websites and AppPools 
 	.\check_iis.ps1 -Websites 'site 1','site 2','site 3' -AppPools 'apppool 1','app2','test 1'
