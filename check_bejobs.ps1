@@ -6,6 +6,10 @@
 PARAMETER Hours
 	Number of hours since now to check for backup jobs.
 	Default 48.
+.OUTPUTS
+    OK: All last backups jobs within $Hours successful.
+    WARNING: Backup job status succeeded with exceptions.
+    CRITICAL: Backup job failed.
 .EXAMPLE
 	.\check_bejobs.ps1 -Hours 96
 .NOTES 
