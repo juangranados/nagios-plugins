@@ -3,6 +3,7 @@
 	Check all automatic services are running and try to start stopped ones.
 .DESCRIPTION
 	Check all automatic services are running and returns Nagios output and code.
+	Try to start stopped services manually.
 .OUTPUTS
     OK: All services running.
     WARNING: Services stopped but started manually.
