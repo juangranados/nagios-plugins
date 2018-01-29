@@ -30,7 +30,6 @@ try{
 }catch{
     Write-Output "UNKNOWN: Could not get Windows Server Backup information. Try running in PowerShell console: Add-WindowsFeature -Name Backup-Tools | NumberOfVersions=0;;;;"
     $host.SetShouldExit(3)
-    Exit 3
 }
 if ($BackupSummary){
     # Check last backup
