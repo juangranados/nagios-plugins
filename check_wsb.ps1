@@ -21,9 +21,12 @@ Param(
 	[int]$Hours=48
 )
 
-if ($((Get-WmiObject win32_operatingsystem).version) -match "6.$(1..2)"){
+#Load PSSnapin for Windows 2008 / R2
+$OperatingSystemVersion = (Get-WmiObject win32_operatingsystem).version
+if (($OperatingSystemVersion -match "6.0") -or (($OperatingSystemVersion -match "6.1"))){
     Add-PSSnapin windows.serverbackup
 }
+
 # Get backup status
 try{
     $BackupSummary = Get-WBSummary -ErrorAction Stop
