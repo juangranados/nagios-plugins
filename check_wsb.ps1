@@ -21,7 +21,7 @@ Param(
 	[int]$Hours=48
 )
 
-if ($((Get-WmiObject win32_operatingsystem).version) -match "6.1"){
+if ($((Get-WmiObject win32_operatingsystem).version) -match "6.*"){
     Add-PSSnapin windows.serverbackup
 }
 # Get backup status
