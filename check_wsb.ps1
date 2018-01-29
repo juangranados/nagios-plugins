@@ -23,7 +23,7 @@ Param(
 
 #Load PSSnapin for Windows 2008 / R2
 $OperatingSystemVersion = (Get-WmiObject win32_operatingsystem).version
-if (($OperatingSystemVersion -match "6.0") -or ($OperatingSystemVersion -match "6.1")){
+if (($OperatingSystemVersion -match "6.0.") -or ($OperatingSystemVersion -match "6.1.")){
     Add-PSSnapin windows.serverbackup
 }
 
