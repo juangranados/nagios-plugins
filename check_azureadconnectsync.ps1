@@ -23,7 +23,7 @@ Param(
 $Output = ""
 $ExitCode = 0
 
-$pingEvents = Get-EventLog -LogName "Application" -Source "Directory Synchronization" -InstanceId 654  -After (Get-Date).AddHours(-$($Hours)) |
+$pingEvents = Get-EventLog -LogName "Application" -Source "Directory Synchronization" -InstanceId 654  -After (Get-Date).AddHours(-$($Hours)) -ErrorAction SilentlyContinue |
 	Sort-Object { $_.Time } -Descending
 if ($pingEvents -ne $null) {
 	$Output = "Latest heart beat event (within last $($Hours) hours). Time $($pingEvents[0].TimeWritten)."
