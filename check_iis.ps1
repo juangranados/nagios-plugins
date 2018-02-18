@@ -46,11 +46,11 @@ Function Get-Status ($Names,$List,$Type,[ref]$ExitCode){
     ForEach ($Item in $List){
         if (($Names -eq "All") -or ($Names -contains $Item.Name)){
             If ($Type -eq "Websites"){
-                Start-Website -Name $Item.Name
+                Start-Website -Name $Item.Name -ErrorAction SilentlyContinue
                 $Result = (Get-WebsiteState -Name $Item.Name).value
             }
             Else{
-                Start-WebAppPool -Name $Item.Name
+                Start-WebAppPool -Name $Item.Name -ErrorAction SilentlyContinue
                 $Result = (Get-WebAppPoolState -Name $Item.Name).value
             }
             if($Result -eq "Started"){
