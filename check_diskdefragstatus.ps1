@@ -42,7 +42,7 @@
     If defragmentation status is greater than warning or critical treshold, it runs disk defragmentation even C: disk free space is low.
     check_diskdefragstatus.ps1 -disks "C:" -defrag -forceDefrag
 .NOTES 
-    Author:	Juan Granados
+    Author: Juan Granados
 #>
 
 Param(
