@@ -10,22 +10,21 @@
 	Number of failed replications for critical treshold.
 	Default 5.
 .OUTPUTS
-    OK: AD replication successful.
-    WARNING: Failed replications equal to Warning treshold.
-    CRITICAL: Failed replications equal to Critical treshold.
+	OK: AD replication successful.
+	WARNING: Failed replications equal to Warning treshold.
+	CRITICAL: Failed replications equal to Critical treshold.
 .EXAMPLE
 	.\Get-ADReplication.ps1 -Warning 5 -Critical 10
 .NOTES 
-	Author:	Juan Granados 
-	Date:	December 2017
+	Author:	Juan Granados
 #>
 Param(
-		[Parameter(Mandatory=$false,Position=0)] 
-		[ValidateNotNullOrEmpty()]
-		[int]$Warning=1,
-		[Parameter(Mandatory=$false,Position=1)] 
-		[ValidateNotNullOrEmpty()]
-		[int]$Critical=5
+	[Parameter(Mandatory=$false,Position=0)] 
+	[ValidateNotNullOrEmpty()]
+	[int]$Warning=1,
+	[Parameter(Mandatory=$false,Position=1)] 
+	[ValidateNotNullOrEmpty()]
+	[int]$Critical=5
 )
 # Variables
 $SyncErrors=0
@@ -38,19 +37,17 @@ $SyncResults = Get-WmiObject -Namespace root\MicrosoftActiveDirectory -Class MSA
 	select SourceDsaCN, NamingContextDN, LastSyncResult, NumConsecutiveSyncFailures, @{N="LastSyncAttempt"; E={$_.ConvertToDateTime($_.TimeOfLastSyncAttempt)}}, @{N="LastSyncSuccess"; E={$_.ConvertToDateTime($_.TimeOfLastSyncSuccess)}} 
 
 # Process result
-foreach ($SyncResult in $SyncResults)
-{
-	if ($SyncResult.LastSyncResult -gt 0){
+foreach ($SyncResult in $SyncResults) {
+	if ($SyncResult.LastSyncResult -gt 0) {
 		$NagiosOutput += "$($SyncResult.NumConsecutiveSyncFailures) failed sync with DC $($SyncResult.SourceDsaCN) on $($SyncResult.NamingContextDN) at $($SyncResult.LastSyncAttempt), last success sync at $($SyncResult.LastSyncSuccess)."
 		$SyncErrors++
-		if ($SyncErrors -eq $Warning){
+		if ($SyncErrors -eq $Warning) {
 			$NagiosStatus = 1
 		}
 		elseif ($SyncErrors -eq $Critical) {
 			$NagiosStatus = 2
 		}			
-	}
-	else{
+	} else{
 		$Syncs++
 	}
 }
@@ -58,13 +55,11 @@ foreach ($SyncResult in $SyncResults)
 $NagiosOutput += " | Syncs=$($Syncs);;;; SyncErrors=$($SyncErrors);$Warning;$Critical;;"
 if ($NagiosStatus -eq 2) {
 	Write-Host "CRITICAL: Replication error: $($NagiosOutput)"
-    $host.SetShouldExit(2)
-} 
-elseif ($NagiosStatus -eq 1) {
+	Exit(2)
+} elseif ($NagiosStatus -eq 1) {
 	Write-Host "WARNING: Replication error: $($NagiosOutput)"
-    $host.SetShouldExit(1)
-} 
-else{
+    	Exit(1)
+} else {
 	Write-Host "OK: replication is up and running.$($NagiosOutput)"
-	$host.SetShouldExit(0)
+	Exit(0)
 }
