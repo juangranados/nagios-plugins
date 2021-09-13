@@ -11,8 +11,7 @@
 	WARNING: Azure AD Connect Sync sync cycle enabled and not synced within last -Hours.
 	CRITICAL: Azure AD Connect Sync sync cycle not enabled.
 .NOTES 
-	Author:	Juan Granados 
-	Date:	January 2018
+	Author:	Juan Granados
 #>
 Param(	
 	[Parameter(Mandatory=$false,Position=0)] 
@@ -27,32 +26,28 @@ $pingEvents = Get-EventLog -LogName "Application" -Source "Directory Synchroniza
 	Sort-Object { $_.Time } -Descending
 if ($pingEvents -ne $null) {
 	$Output = "Latest heart beat event (within last $($Hours) hours). Time $($pingEvents[0].TimeWritten)."
-}
-else{
+} else {
 	$Output = "No ping event found within last $($Hours) hours."
 	$ExitCode = 1
 }
 
 $ADSyncScheduler = Get-ADSyncScheduler
-If (!$ADSyncScheduler.SyncCycleEnabled){
+if (!$ADSyncScheduler.SyncCycleEnabled) {
 	$ExitCode = 2
 }
 
-If ($ADSyncScheduler.StagingModeEnabled){
+if ($ADSyncScheduler.StagingModeEnabled) {
 	$Output = "Server is in stand by mode. $($Output)"
-}
-Else{
+} else {
 	$Output = "Server is in active mode. $($Output)"
 }
 
-If ($ExitCode -eq 0){
+if ($ExitCode -eq 0) {
 	Write-Host "OK: Azure AD Connect Sync is up and running. $($Output)"
-}
-ElseIf($ExitCode -eq 1){
+} elseif ($ExitCode -eq 1) {
 	Write-Host "WARNING: Azure AD Connect Sync is enabled, but not syncing. $($Output)"
-}
-ElseIf($ExitCode -eq 2){
+} elseif ($ExitCode -eq 2) {
 	Write-Host "CRITICAL: Azure AD Connect Sync is disabled. $($Output)"
 }
 
-$Host.SetShouldExit($ExitCode)
+Exit($ExitCode)
