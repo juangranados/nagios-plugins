@@ -5,42 +5,38 @@
 	Check all automatic services are running and returns Nagios output and code.
 	Try to start stopped services manually.
 .OUTPUTS
-    OK: All services running.
-    WARNING: Services stopped but started manually.
-    CRITICAL: Services stopped and could not started.
+	OK: All services running.
+	WARNING: Services stopped but started manually.
+	CRITICAL: Services stopped and could not started.
 .EXAMPLE
 .NOTES 
-	Author:	Juan Granados 
-	Date:	December 2017
+	Author:	Juan Granados
 #>
 
 $Services = Get-CimInstance win32_service -Filter "startmode = 'auto' AND state != 'running' AND exitcode != 0"  | select name, startname, exitcode
 $ServicesRunning = Get-CimInstance win32_service -Filter "state = 'running'"
-if ([string]::IsNullOrEmpty($Services)){
+if ([string]::IsNullOrEmpty($Services)) {
     Write-Output "OK: All services running | ServicesRunning=$($ServicesRunning.Count);0;0;0;0"
-    $host.SetShouldExit(0)
-}
-else{
+    Exit(0)
+} else {
     $ServicesStopped=""
-    ForEach ($Service in $Services){
+    foreach ($Service in $Services){
         Start-Service $($Service.Name) -ErrorAction SilentlyContinue | Out-Null
-        if ($(Get-Service -Name $($Service.Name)).Status -eq "running"){
+        if ($(Get-Service -Name $($Service.Name)).Status -eq "running") {
             $ServicesStopped += "$($Service.Name)(Started manually),"
-            If ($ExitCode -eq 0){
+            if ($ExitCode -eq 0) {
                 $ExitCode = 1
             }
-        }
-        Else{
+        } else {
             $ServicesStopped += "$($Service.Name)(Stopped),"
             $ExitCode = 2
         }
     }
-    If ($ExitCode -eq 2){
+    if ($ExitCode -eq 2) {
         Write-Output "CRITICAL: Service(s) stopped: $($ServicesStopped.TrimEnd(",")) | ServicesRunning=$($ServicesRunning.Count);0;0;0;0"
-        $host.SetShouldExit(2)
-    }
-    Else{
+        Exit(2)
+    } else {
         Write-Output "WARNING: Service(s) stopped: $($ServicesStopped.TrimEnd(",")) | ServicesRunning=$($ServicesRunning.Count);0;0;0;0"
-        $host.SetShouldExit(1)
+        Exit(1)
     }
 }
