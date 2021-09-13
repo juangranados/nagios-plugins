@@ -8,7 +8,6 @@
 	OK: All services running.
 	WARNING: Services stopped but started manually.
 	CRITICAL: Services stopped and could not started.
-.EXAMPLE
 .NOTES 
 	Author:	Juan Granados
 #>
