@@ -2,18 +2,18 @@
 .SYNOPSIS
     Check Windows disks fragmentation status.
 .DESCRIPTION
-	Check Windows disks fragmentation status.
-	Optionally performs defragmentation.
+    Check Windows disks fragmentation status.
+    Optionally performs defragmentation.
 .OUTPUTS
     OK: All disk fragmentation status is ok.
     WARNING: % of fragmentation equal to Warning treshold.
     CRITICAL: % of fragmentation equal to Critical treshold.
 .PARAMETER warning
-	% of fragmentation for warning treshold.
-	Default System default.
+    % of fragmentation for warning treshold.
+    Default System default.
 .PARAMETER critical
-	% of fragmentation for critical treshold.
-	Default None.
+    % of fragmentation for critical treshold.
+    Default None.
 .PARAMETER disks
     Disks to check fragmentation status.
     Default: all.
