@@ -1,6 +1,6 @@
 ﻿<#
 .SYNOPSIS
-	Check Windows disks fragmentation status.
+    Check Windows disks fragmentation status.
 .DESCRIPTION
 	Check Windows disks fragmentation status.
 	Optionally performs defragmentation.
@@ -46,19 +46,19 @@
 #>
 
 Param(
-    [Parameter(Mandatory=$false,Position=0)] 
-    [ValidateRange(0,100)]
-    [int]$warning=0,
-    [Parameter(Mandatory=$false,Position=1)] 
-    [ValidateRange(0,100)]
-    [int]$critical=0,
-    [Parameter(Mandatory=$false,Position=2)] 
+    [Parameter(Mandatory = $false, Position = 0)] 
+    [ValidateRange(0, 100)]
+    [int]$warning = 0,
+    [Parameter(Mandatory = $false, Position = 1)] 
+    [ValidateRange(0, 100)]
+    [int]$critical = 0,
+    [Parameter(Mandatory = $false, Position = 2)] 
     [ValidateNotNullOrEmpty()]
-    [string[]]$disks="all",
+    [string[]]$disks = "all",
     [Parameter()] 
-	[switch]$defrag,
+    [switch]$defrag,
     [Parameter()] 
-	[switch]$forceDefrag
+    [switch]$forceDefrag
 )
 #Requires -RunAsAdministrator
 $ErrorActionPreference = "Stop"
@@ -70,7 +70,8 @@ Function Defrag-Disk($diskToDefrag) {
     if ($forceDefrag) {
         Write-Verbose "Forcing $($diskToDefrag.DriveLetter) defragmentation"
         $result = $diskToDefrag.Defrag($true)
-    } else {
+    }
+    else {
         Write-Verbose "Performing $($diskToDefrag.DriveLetter) defragmentation"
         $result = $diskToDefrag.Defrag($false)    
     }
@@ -82,11 +83,13 @@ Function Defrag-Disk($diskToDefrag) {
         if (($critical -gt 0) -and ($result.DefragAnalysis.FilePercentFragmentation -gt $critical)) {
             Write-Verbose "Status is critical"
             $global:nagiosStatus = 2
-        } elseif (($warning -eq 0 -and $result.DefragAnalysis.FilePercentFragmentation -gt 10) -or ( ($warning -gt 0) -and ($result.DefragAnalysis.FilePercentFragmentation -gt $warning))) {
+        }
+        elseif (($warning -eq 0 -and $result.DefragAnalysis.FilePercentFragmentation -gt 10) -or ( ($warning -gt 0) -and ($result.DefragAnalysis.FilePercentFragmentation -gt $warning))) {
             Write-Verbose "Status is warning"
             $global:nagiosStatus = 1
         }
-    } else {
+    }
+    else {
         Write-Output "CRITICAL: Error $($result.ReturnValue) defragmenting drive $($diskToDefrag.DriveLetter)"
         Write-Output "Check error codes: https://docs.microsoft.com/en-us/previous-versions/windows/desktop/vdswmi/defrag-method-in-class-win32-volume"
         Exit(2)
@@ -97,17 +100,18 @@ Function Defrag-Disk($diskToDefrag) {
 
 try {
     if ($disks -eq "all") {
-        $drives = get-wmiobject win32_volume | Where-Object { $_.DriveType -eq 3 -and $_.DriveLetter -and (Get-WMIObject Win32_LogicalDiskToPartition | Select-Object Dependent) -match $_.DriveLetter}
-    } else {
+        $drives = get-wmiobject win32_volume | Where-Object { $_.DriveType -eq 3 -and $_.DriveLetter -and (Get-WMIObject Win32_LogicalDiskToPartition | Select-Object Dependent) -match $_.DriveLetter }
+    }
+    else {
         foreach ($disk in $disks) {
             if (-not ($disk -match '[A-Za-z]:')) {
                 Write-Output "UNKNOWN: Error $($drive) is not a valid disk unit. Expected N:, where N is drive unit. Example C: or D: or F:"
                 Exit(3)
             }
         }
-        $drives = get-wmiobject win32_volume | ? { $_.DriveType -eq 3 -and $_.DriveLetter -in $disks}
+        $drives = get-wmiobject win32_volume | Where-Object { $_.DriveType -eq 3 -and $_.DriveLetter -in $disks }
     }
-    if (-not ($drives)){
+    if (-not ($drives)) {
         Write-Output "UNKNOWN: No drives found with get-wmiobject win32_volume command"
         Exit(3)
     }
@@ -121,28 +125,33 @@ try {
                 if (-not $defrag) {
                     Write-Verbose "Disk will not be defragmented. Status is critical"
                     $global:nagiosStatus = 2
-                } else {
+                }
+                else {
                     Defrag-Disk -diskToDefrag $drive
                     Continue
                 }
-            } elseif (($warning -eq 0 -and $result.DefragRecommended -eq "True") -or ( ($warning -gt 0) -and ($result.DefragAnalysis.FilePercentFragmentation -gt $warning))) {
-               if (-not $defrag) {
+            }
+            elseif (($warning -eq 0 -and $result.DefragRecommended -eq "True") -or ( ($warning -gt 0) -and ($result.DefragAnalysis.FilePercentFragmentation -gt $warning))) {
+                if (-not $defrag) {
                     Write-Verbose "Disk will not be defragmented. Status is warning"
                     $global:nagiosStatus = 1
-                } else {
+                }
+                else {
                     Defrag-Disk -diskToDefrag $drive
                     Continue
                 }
             }
             $global:nagiosOutput += "Disk $($drive.DriveLetter) fragmentation is $($result.DefragAnalysis.FilePercentFragmentation)."
-        } else {
+        }
+        else {
             Write-Output "CRITICAL: Error $($result.ReturnValue) checking status of drive $($drive.DriveLetter)"
             Write-Output "Check error codes: https://docs.microsoft.com/en-us/previous-versions/windows/desktop/vdswmi/defraganalysis-method-in-class-win32-volume#return-value"
             Exit(2)
         }
     }
     
-} catch {
+}
+catch {
     Write-Output "CRITICAL: $($_.Exception.Message)"
     Exit(2)
 }
@@ -160,14 +169,14 @@ foreach ($drive in $drives) {
 }
 
 if ($global:nagiosStatus -eq 2) {
-	Write-Output "CRITICAL: $($global:nagiosOutput)"
+    Write-Output "CRITICAL: $($global:nagiosOutput)"
     Exit(2)
 } 
 elseif ($global:nagiosStatus -eq 1) {
-	Write-Output "WARNING: $($global:nagiosOutput)"
+    Write-Output "WARNING: $($global:nagiosOutput)"
     Exit(1)
 } 
-else{
-	Write-Output "OK: disk fragmentation is correct.$($global:nagiosOutput)"
-	Exit(0)
+else {
+    Write-Output "OK: disk fragmentation is correct.$($global:nagiosOutput)"
+    Exit(0)
 }
