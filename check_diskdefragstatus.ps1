@@ -1,19 +1,19 @@
 ﻿<#
 .SYNOPSIS
-    Check Windows disks fragmentation status.
+	Check Windows disks fragmentation status.
 .DESCRIPTION
-    Check Windows disks fragmentation status.
-    Optionally performs defragmentation.
+	Check Windows disks fragmentation status.
+	Optionally performs defragmentation.
 .OUTPUTS
     OK: All disk fragmentation status is ok.
     WARNING: % of fragmentation equal to Warning treshold.
     CRITICAL: % of fragmentation equal to Critical treshold.
 .PARAMETER warning
-    % of fragmentation for warning treshold.
-    Default System default.
+	% of fragmentation for warning treshold.
+	Default System default.
 .PARAMETER critical
-    % of fragmentation for critical treshold.
-    Default None.
+	% of fragmentation for critical treshold.
+	Default None.
 .PARAMETER disks
     Disks to check fragmentation status.
     Default: all.
@@ -42,7 +42,7 @@
     If defragmentation status is greater than warning or critical treshold, it runs disk defragmentation even C: disk free space is low.
     check_diskdefragstatus.ps1 -disks "C:" -defrag -forceDefrag
 .NOTES 
-    Author: Juan Granados
+	Author:	Juan Granados
 #>
 
 Param(
@@ -56,9 +56,9 @@ Param(
     [ValidateNotNullOrEmpty()]
     [string[]]$disks="all",
     [Parameter()] 
-    [switch]$defrag,
+	[switch]$defrag,
     [Parameter()] 
-    [switch]$forceDefrag
+	[switch]$forceDefrag
 )
 #Requires -RunAsAdministrator
 $ErrorActionPreference = "Stop"
@@ -68,16 +68,22 @@ $global:nagiosOutput = ""
 Function Defrag-Disk($diskToDefrag) {
 
     if ($forceDefrag) {
+        Write-Verbose "Forcing $($diskToDefrag.DriveLetter) defragmentation"
         $result = $diskToDefrag.Defrag($true)
     } else {
-        $result = $diskToDefrag.Defrag($false)
+        Write-Verbose "Performing $($diskToDefrag.DriveLetter) defragmentation"
+        $result = $diskToDefrag.Defrag($false)    
     }
         
     if ($result.ReturnValue -eq 0) {
+        Write-Verbose "Defragmentation successful"
+        Write-Verbose "Current fragmentation is $($result.DefragAnalysis.FilePercentFragmentation)"
         $diskToDefrag.DefragResult = $result
         if (($critical -gt 0) -and ($result.DefragAnalysis.FilePercentFragmentation -gt $critical)) {
+            Write-Verbose "Status is critical"
             $global:nagiosStatus = 2
         } elseif (($warning -eq 0 -and $result.DefragAnalysis.FilePercentFragmentation -gt 10) -or ( ($warning -gt 0) -and ($result.DefragAnalysis.FilePercentFragmentation -gt $warning))) {
+            Write-Verbose "Status is warning"
             $global:nagiosStatus = 1
         }
     } else {
@@ -91,7 +97,7 @@ Function Defrag-Disk($diskToDefrag) {
 
 try {
     if ($disks -eq "all") {
-        $drives = get-wmiobject win32_volume | ? { $_.DriveType -eq 3 -and $_.DriveLetter}
+        $drives = get-wmiobject win32_volume | Where-Object { $_.DriveType -eq 3 -and $_.DriveLetter -and (Get-WMIObject Win32_LogicalDiskToPartition | Select-Object Dependent) -match $_.DriveLetter}
     } else {
         foreach ($disk in $disks) {
             if (-not ($disk -match '[A-Za-z]:')) {
@@ -106,11 +112,14 @@ try {
         Exit(3)
     }
     foreach ($drive in $drives) {
+        Write-Verbose "Analizing drive $($drive.DriveLetter)"
         $result = $drive.DefragAnalysis()
         if ($result.ReturnValue -eq 0) {
+            Write-Verbose "Current fragmentation is $($result.DefragAnalysis.FilePercentFragmentation)"
             $drive | Add-Member -NotePropertyName 'DefragResult' -NotePropertyValue $result
             if (($critical -gt 0) -and ($result.DefragAnalysis.FilePercentFragmentation -gt $critical)) {
                 if (-not $defrag) {
+                    Write-Verbose "Disk will not be defragmented. Status is critical"
                     $global:nagiosStatus = 2
                 } else {
                     Defrag-Disk -diskToDefrag $drive
@@ -118,6 +127,7 @@ try {
                 }
             } elseif (($warning -eq 0 -and $result.DefragRecommended -eq "True") -or ( ($warning -gt 0) -and ($result.DefragAnalysis.FilePercentFragmentation -gt $warning))) {
                if (-not $defrag) {
+                    Write-Verbose "Disk will not be defragmented. Status is warning"
                     $global:nagiosStatus = 1
                 } else {
                     Defrag-Disk -diskToDefrag $drive
