@@ -41,7 +41,7 @@ $global:nagiosOutput = ""
 $WarningPreference = 'SilentlyContinue'
 Add-PSSnapin -Name VeeamPSSnapIn -ErrorAction SilentlyContinue
 function Get-JobStatus ([string]$name, [string]$result, [string]$state, [datetime]$lastRun) {
-    $jobInfo = "Name: $name - Result: $result - State: $state - Last run: $lastRun."
+    $jobInfo = "Name: $name - Result: $result - State: $state - Last run: $($lastRun.ToLocalTime())."
     Write-Verbose $jobInfo
     if (($result -ne 'Warning' -and $result -ne "Success") -or $lastRun -lt (Get-Date).AddHours(-$critical)) {
         $global:nagiosOutput += "Critical -> $jobInfo"
