@@ -18,10 +18,10 @@
     Default: all.
     Example: "Tape Backup","Hyper-V","Incremental backup"
 .EXAMPLE
-    Checks jobs by name with default warning treshold and 50 critical treshold.
+    Checks jobs by name with default warning treshold and 50h critical treshold.
     check_diskdefragstatus.ps1 -jobs "Tape Backup","Full Backup","Hyper-V Backup" -critical 50
 .EXAMPLE
-    Checks all jobs by name with 48 warning treshold and 96 critical treshold.
+    Checks all jobs by name with 48h warning treshold and 96h critical treshold.
     check_diskdefragstatus.ps1 -warning 48 -critical 96
 .NOTES 
 	Author:	Juan Granados
@@ -41,7 +41,7 @@ $global:nagiosOutput = ""
 $WarningPreference = 'SilentlyContinue'
 Add-PSSnapin -Name VeeamPSSnapIn -ErrorAction SilentlyContinue
 function Get-JobStatus ([string]$name, [string]$result, [string]$state, [datetime]$lastRun) {
-    $jobInfo = "Name: $name - Result: $result - State: $state - Last run: $($lastRun.ToLocalTime())."
+    $jobInfo = "Name: $name - Result: $result - State: $state - Last run: $("$($lastRun.ToShortDateString()) at $($lastRun.ToShortTimeString())")."
     Write-Verbose $jobInfo
     if (($result -ne 'Warning' -and $result -ne "Success") -or $lastRun -lt (Get-Date).AddHours(-$critical)) {
         $global:nagiosOutput += "Critical -> $jobInfo"
@@ -91,7 +91,7 @@ if ($global:nagiosStatus -eq 2) {
     Exit(2)
 }
 if ($global:nagiosStatus -eq 1) {
-    Write-Output "CRITICAL: $($global:nagiosOutput)"
+    Write-Output "WARNING: $($global:nagiosOutput)"
     Exit(1)
 }
 if ($global:nagiosOutput -eq "") {
