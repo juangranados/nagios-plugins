@@ -37,7 +37,7 @@ Param(
 #Requires -RunAsAdministrator
 $ErrorActionPreference = "Stop"
 $global:nagiosStatus = 0
-$global:nagiosOutput = ""
+$global:nagiosOutput = @()
 $WarningPreference = 'SilentlyContinue'
 Add-PSSnapin -Name VeeamPSSnapIn -ErrorAction SilentlyContinue
 function Get-JobStatus ([string]$name, [string]$result, [string]$state, [datetime]$lastRun) {
@@ -87,16 +87,19 @@ if ($tapeJobs.Length -gt 0) {
     }
 }
 if ($global:nagiosStatus -eq 2) {
-    Write-Output "CRITICAL: $($global:nagiosOutput)"
+    Write-Output "CRITICAL"
+    Write-Output $global:nagiosOutput
     Exit(2)
 }
 if ($global:nagiosStatus -eq 1) {
-    Write-Output "WARNING: $($global:nagiosOutput)"
+    Write-Output "WARNING"
+    Write-Output $global:nagiosOutput
     Exit(1)
 }
-if ($global:nagiosOutput -eq "") {
+if ($global:nagiosOutput.Length -eq 0) {
     Write-Output "UNKNOWN: No jobs found"
     Exit(3)
 }
-Write-Output "OK: $($global:nagiosOutput)"
+Write-Output "OK"
+Write-Output $global:nagiosOutput
 Exit(0)
