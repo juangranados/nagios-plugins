@@ -59,12 +59,12 @@ perf="| queue=$aqusz;$warning;$critical;; read=${rkBs}KB;;;; reads=$rs;;;; write
 
 if [ $(echo $aqusz'>'$critical | bc -l) -eq 1 ]
 then
-    echo "Critical. $output"
+    echo "Critical. $output $perf"
     exit 2
 fi
 if [ $(echo $aqusz'>'$warning | bc -l) -eq 1 ] 
 then
-    echo "Warning. $output"
+    echo "Warning. $output $perf"
     exit 1
 fi
 echo "Ok. $output $perf"
