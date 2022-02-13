@@ -40,6 +40,12 @@ then
     echo "Unknown: jq command could not be found. Please install it and try again"
     exit 3
 fi
+if ! [[ $(command -v bc) ]]
+then
+    echo "Unknown: bc command could not be found. Please install it and try again"
+    exit 3
+fi
+
 if ! [[ $warning =~ $re ]]
 then
     echo "Unknown: warning must be a number"
