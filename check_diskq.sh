@@ -32,7 +32,12 @@ while [ $# -gt 0 ]; do
 done
 if ! [[ $(command -v iostat) ]]
 then
-    echo "iostat could not be found. Please install it and try again"
+    echo "Unknown: iostat command could not be found. Please install it and try again"
+    exit 3
+fi
+if ! [[ $(command -v jq) ]]
+then
+    echo "Unknown: jq command could not be found. Please install it and try again"
     exit 3
 fi
 if ! [[ $warning =~ $re ]]
