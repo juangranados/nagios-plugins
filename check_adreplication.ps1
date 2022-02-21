@@ -19,23 +19,26 @@
 	Author:	Juan Granados
 #>
 Param(
-	[Parameter(Mandatory=$false,Position=0)] 
+	[Parameter(Mandatory = $false, Position = 0)] 
 	[ValidateNotNullOrEmpty()]
-	[int]$Warning=1,
-	[Parameter(Mandatory=$false,Position=1)] 
+	[int]$Warning = 1,
+	[Parameter(Mandatory = $false, Position = 1)] 
 	[ValidateNotNullOrEmpty()]
-	[int]$Critical=5
+	[int]$Critical = 5
 )
 # Variables
-$SyncErrors=0
+$SyncErrors = 0
 $NagiosStatus = 0
 $NagiosOutput = ""
 $Syncs = 0
 
 # Get AD Replication Status for this DC
 $SyncResults = Get-WmiObject -Namespace root\MicrosoftActiveDirectory -Class MSAD_ReplNeighbor -ComputerName $env:COMPUTERNAME |
-	select SourceDsaCN, NamingContextDN, LastSyncResult, NumConsecutiveSyncFailures, @{N="LastSyncAttempt"; E={$_.ConvertToDateTime($_.TimeOfLastSyncAttempt)}}, @{N="LastSyncSuccess"; E={$_.ConvertToDateTime($_.TimeOfLastSyncSuccess)}} 
-
+Select-Object SourceDsaCN, NamingContextDN, LastSyncResult, NumConsecutiveSyncFailures, @{N = "LastSyncAttempt"; E = { $_.ConvertToDateTime($_.TimeOfLastSyncAttempt) } }, @{N = "LastSyncSuccess"; E = { $_.ConvertToDateTime($_.TimeOfLastSyncSuccess) } } 
+if (-not $SyncResults) {
+	$NagiosOutput += " UNKNOWN - Can not check DC syncs."
+	Exit(3)
+}
 # Process result
 foreach ($SyncResult in $SyncResults) {
 	if ($SyncResult.LastSyncResult -gt 0) {
@@ -47,19 +50,37 @@ foreach ($SyncResult in $SyncResults) {
 		elseif ($SyncErrors -eq $Critical) {
 			$NagiosStatus = 2
 		}			
-	} else{
+	}
+ else {
 		$Syncs++
 	}
+}
+$SysvolStatus = Get-WMIObject -ComputerName $env:COMPUTERNAME -Namespace "root/microsoftdfs" -Class "dfsrreplicatedfolderinfo" -Filter "ReplicatedFolderName = 'SYSVOL Share'" | Select-Object State
+if ($SysvolStatus.State) {
+	switch ( $SysvolStatus.State ) {
+		0 { $NagiosOutput += " CRITICAL - Sysvol Uninitialized."; $NagiosStatus = 2; }
+		1 { $NagiosOutput += " WARNING - Sysvol Initialized."; if ($NagiosStatus -eq 0) { $NagiosStatus = 1 } }
+		2 { $NagiosOutput += " WARNING - Sysvol on Initial Sync."; if ($NagiosStatus -eq 0) { $NagiosStatus = 1 } }
+		3 { $NagiosOutput += " WARNING - Sysvol on Auto Recovery."; if ($NagiosStatus -eq 0) { $NagiosStatus = 1 } }
+		4 { $NagiosOutput += " Sysvol is OK." }
+		5 { $NagiosOutput += " CRITICAL - Sysvol has an Error."; $NagiosStatus = 2; }
+	}
+}
+else {
+	$NagiosOutput += " UNKNOWN - Can not chech Sysvol status."
+	Exit(3)
 }
 # Nagios Output
 $NagiosOutput += " | Syncs=$($Syncs);;;; SyncErrors=$($SyncErrors);$Warning;$Critical;;"
 if ($NagiosStatus -eq 2) {
 	Write-Host "CRITICAL: Replication error: $($NagiosOutput)"
 	Exit(2)
-} elseif ($NagiosStatus -eq 1) {
+}
+elseif ($NagiosStatus -eq 1) {
 	Write-Host "WARNING: Replication error: $($NagiosOutput)"
-    	Exit(1)
-} else {
+	Exit(1)
+}
+else {
 	Write-Host "OK: replication is up and running.$($NagiosOutput)"
 	Exit(0)
 }
