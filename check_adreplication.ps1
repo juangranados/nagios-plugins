@@ -36,7 +36,7 @@ $Syncs = 0
 $SyncResults = Get-WmiObject -Namespace root\MicrosoftActiveDirectory -Class MSAD_ReplNeighbor -ComputerName $env:COMPUTERNAME |
 Select-Object SourceDsaCN, NamingContextDN, LastSyncResult, NumConsecutiveSyncFailures, @{N = "LastSyncAttempt"; E = { $_.ConvertToDateTime($_.TimeOfLastSyncAttempt) } }, @{N = "LastSyncSuccess"; E = { $_.ConvertToDateTime($_.TimeOfLastSyncSuccess) } } 
 if (-not $SyncResults) {
-	Write-Host "UNKNOWN - Can not check DC syncs."
+	Write-Host "UNKNOWN - Can not check DC syncs. Maybe WMI is not working properly."
 	Exit(3)
 }
 # Process result
