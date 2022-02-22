@@ -36,7 +36,7 @@ $Syncs = 0
 $SyncResults = Get-WmiObject -Namespace root\MicrosoftActiveDirectory -Class MSAD_ReplNeighbor -ComputerName $env:COMPUTERNAME |
 Select-Object SourceDsaCN, NamingContextDN, LastSyncResult, NumConsecutiveSyncFailures, @{N = "LastSyncAttempt"; E = { $_.ConvertToDateTime($_.TimeOfLastSyncAttempt) } }, @{N = "LastSyncSuccess"; E = { $_.ConvertToDateTime($_.TimeOfLastSyncSuccess) } } 
 if (-not $SyncResults) {
-	$NagiosOutput += " UNKNOWN - Can not check DC syncs."
+	Write-Host "UNKNOWN - Can not check DC syncs."
 	Exit(3)
 }
 # Process result
@@ -55,6 +55,7 @@ foreach ($SyncResult in $SyncResults) {
 		$Syncs++
 	}
 }
+$NagiosOutput += " | Syncs=$($Syncs);;;; SyncErrors=$($SyncErrors);$Warning;$Critical;;"
 $SysvolStatus = Get-WMIObject -ComputerName $env:COMPUTERNAME -Namespace "root/microsoftdfs" -Class "dfsrreplicatedfolderinfo" -Filter "ReplicatedFolderName = 'SYSVOL Share'" | Select-Object State
 if ($SysvolStatus.State) {
 	switch ( $SysvolStatus.State ) {
@@ -67,11 +68,10 @@ if ($SysvolStatus.State) {
 	}
 }
 else {
-	$NagiosOutput += " UNKNOWN - Can not chech Sysvol status."
+	$NagiosOutput = "UNKNOWN - Can not chech Sysvol status." + $NagiosOutput
+	Write-Host $NagiosOutput
 	Exit(3)
 }
-# Nagios Output
-$NagiosOutput += " | Syncs=$($Syncs);;;; SyncErrors=$($SyncErrors);$Warning;$Critical;;"
 if ($NagiosStatus -eq 2) {
 	Write-Host "CRITICAL: Replication error: $($NagiosOutput)"
 	Exit(2)
