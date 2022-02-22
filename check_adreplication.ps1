@@ -55,7 +55,6 @@ foreach ($SyncResult in $SyncResults) {
 		$Syncs++
 	}
 }
-$NagiosOutput += " | Syncs=$($Syncs);;;; SyncErrors=$($SyncErrors);$Warning;$Critical;;"
 $SysvolStatus = Get-WMIObject -ComputerName $env:COMPUTERNAME -Namespace "root/microsoftdfs" -Class "dfsrreplicatedfolderinfo" -Filter "ReplicatedFolderName = 'SYSVOL Share'" | Select-Object State
 if ($SysvolStatus.State) {
 	switch ( $SysvolStatus.State ) {
@@ -68,10 +67,11 @@ if ($SysvolStatus.State) {
 	}
 }
 else {
-	$NagiosOutput = "UNKNOWN - Can not chech Sysvol status." + $NagiosOutput
+	$NagiosOutput = "UNKNOWN - Can not chech Sysvol status. | Syncs=$($Syncs);;;; SyncErrors=$($SyncErrors);$Warning;$Critical;;"
 	Write-Host $NagiosOutput
 	Exit(3)
 }
+$NagiosOutput += " | Syncs=$($Syncs);;;; SyncErrors=$($SyncErrors);$Warning;$Critical;;"
 if ($NagiosStatus -eq 2) {
 	Write-Host "CRITICAL: Replication error: $($NagiosOutput)"
 	Exit(2)
