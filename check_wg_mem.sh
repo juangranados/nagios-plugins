@@ -1,19 +1,19 @@
 #!/bin/bash
-# check_wg_cpu for Nagios
-# Version: 0.2
+# check_mem_cpu for Nagios
+# Version: 0.1
 # March 2022 - Juan Granados
 #---------------------------------------------------
-# This plugin checks CPU usage of Watchguard device
-# Usage: check_wg_cpu.sh [options]
+# This plugin checks memory usage of Watchguard device
+# Usage: check_wg_mem.sh [options]
 # -h | --host: ip of device.
-# -w | --warning: % of cpu warning.
-# -c | --critical: % of cpu critical.
+# -w | --warning: % of memory warning.
+# -c | --critical: % of memory critical.
 # -v | --version: snmp version. Depends of version you must specify.
 #   2: -s | --string: snmp community string.
 #   3: -u | --user: user. -p | --pass: password.
-# Example: check_wg_cpu.sh -h 192.168.2.100
-# Example: check_wg_cpu.sh -h 192.168.2.100 -c 80 -w 90 -v 2 -s publicwg
-# Example: check_wg_cpu.sh -h 192.168.2.100 -c 80 -w 90 -v 3 -u read -p 1234567789
+# Example: check_wg_mem.sh -h 192.168.2.100
+# Example: check_wg_mem.sh -h 192.168.2.100 -c 80 -w 90 -v 2 -s publicwg
+# Example: check_wg_mem.sh -h 192.168.2.100 -c 80 -w 90 -v 3 -u read -p 1234567789
 #---------------------------------------------------
 # Reference https://techsearch.watchguard.com/KB/?type=KBArticle&SFDCID=kA22A000000HQ0PSAW&lang=en_US
 #---------------------------------------------------
@@ -25,7 +25,10 @@ version="2"
 community="public"
 timeout="10"
 host=""
-oid="1.3.6.1.4.1.2021.11.11.0"
+oid_total_mem="1.3.6.1.4.1.2021.4.5.0"
+oid_free_mem="1.3.6.1.4.1.2021.4.11.0"
+oid_total_swap="1.3.6.1.4.1.2021.4.3.0"
+oid_used_swap="	1.3.6.1.4.1.2021.4.4.0"
 
 # Process arguments
 while [ $# -gt 0 ]; do
@@ -125,23 +128,35 @@ else
 fi
 
 # Run SNMP Command
-cpu=`snmpget $args $host $oid 2> /dev/null| cut -d = -f2 | cut -d " " -f2`
-if [[ -z $cpu ]]
+snmp_mem=`snmpget $args $host $oid_total_mem $oid_free_mem $oid_total_swap $oid_used_swap 2> /dev/null`
+if [[ -z $snmp_mem ]]
 then 
-    echo "Unknown: cpu stats not found"
+    echo "Unknown: memory stats not found"
     exit 3
 fi
-cpu=`echo "100 - $cpu" | bc -l`
-output="CPU usage: $cpu%"
-perf="| cpu=$cpu%;$warning;$critical;0;100"
+total_mem=`echo $snmp_mem | cut -d = -f2 | cut -d " " -f2`
+free_mem=`echo $snmp_mem | cut -d = -f3 | cut -d " " -f2`
+total_swap=`echo $snmp_mem | cut -d = -f4 | cut -d " " -f2`
+free_swap=`echo $snmp_mem | cut -d = -f5 | cut -d " " -f2`
+percent_used_mem=`echo "100 - (($free_mem * 100) / $total_mem)" | bc -l | cut -d. -f1`
+if [[ total_swap -gt 0 ]]
+then
+  percent_used_swap=`echo "100 - (($free_swap * 100) / $total_swap)" | bc -l | cut -d. -f1`
+else
+  percent_used_swap=0
+fi
+used_mem=`echo "$total_mem - $free_mem" | bc -l`
+used_swap=`echo "$total_swap - $free_swap" | bc -l`
+output="Memory usage: $percent_used_mem%"
+perf="| %mem_used=$percent_used_mem%;$warning;$critical;0;100 %swap_used=$percent_used_swap%;$warning;$critical;0;100 mem_used=$(echo $used_mem)KB;;;0;$total_mem mem_free=$(echo $free_mem)KB;;;0;$total_mem swap_used=$(echo $used_swap)KB;;;0;$total_swap swap_free=$(echo $free_swap)KB;;;0;$total_swap"
 
 # Check SNMP command result
-if [ $(echo $cpu'>'$critical | bc -l) -eq 1 ]
+if [ $(echo $percent_used_mem'>'$critical | bc -l) -eq 1 ]
 then
     echo "Critical. $output $perf"
     exit 2
 fi
-if [ $(echo $cpu'>'$warning | bc -l) -eq 1 ] 
+if [ $(echo $percent_used_mem'>'$warning | bc -l) -eq 1 ] 
 then
     echo "Warning. $output $perf"
     exit 1
