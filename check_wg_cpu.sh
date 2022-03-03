@@ -3,7 +3,7 @@
 # Version: 0.2
 # March 2022 - Juan Granados
 #---------------------------------------------------
-# This plugin checks CPU usage of Watchguard device
+# This plugin checks CPU usage of Watchguard device and returns CPU performance data.
 # Usage: check_wg_cpu.sh [options]
 # -h | --host: ip of device.
 # -w | --warning: % of cpu warning.
@@ -136,12 +136,12 @@ output="CPU usage: $cpu%"
 perf="| cpu=$cpu%;$warning;$critical;0;100"
 
 # Check SNMP command result
-if [ $(echo $cpu'>'$critical | bc -l) -eq 1 ]
+if [[ $(echo $cpu'>'$critical | bc -l) -eq 1 ]]
 then
     echo "Critical. $output $perf"
     exit 2
 fi
-if [ $(echo $cpu'>'$warning | bc -l) -eq 1 ] 
+if [[ $(echo $cpu'>'$warning | bc -l) -eq 1 ]] 
 then
     echo "Warning. $output $perf"
     exit 1

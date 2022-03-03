@@ -3,7 +3,7 @@
 # Version: 0.1
 # March 2022 - Juan Granados
 #---------------------------------------------------
-# This plugin checks disk queue using iostat
+# This plugin checks disk queue using iostat and returns queue, read/write and active time performance data.
 # Usage: check_diskq.sh -d <disk> -w <warning_threshold> -c <critical_threshold> 
 # -d | --disk: disk to check queue.
 # -w | --warning: queue warning.
@@ -96,12 +96,12 @@ output="Stats for disk $disk -> Queue:$aqusz Read:${rkBs}kB/s Read/s:$rs Write:$
 perf="| queue=$aqusz;$warning;$critical;; read=${rkBs}KB;;;; reads=$rs;;;; write=${wkBs}KB;;;; writess=$ws;;;; util=$util%;;;;"
 
 # Check disk queue result
-if [ $(echo $aqusz'>'$critical | bc -l) -eq 1 ]
+if [[ $(echo $aqusz'>'$critical | bc -l) -eq 1 ]]
 then
     echo "Critical. $output $perf"
     exit 2
 fi
-if [ $(echo $aqusz'>'$warning | bc -l) -eq 1 ] 
+if [[ $(echo $aqusz'>'$warning | bc -l) -eq 1 ]] 
 then
     echo "Warning. $output $perf"
     exit 1

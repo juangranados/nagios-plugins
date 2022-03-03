@@ -3,7 +3,7 @@
 # Version: 0.1
 # March 2022 - Juan Granados
 #---------------------------------------------------
-# This plugin checks memory usage of Watchguard device
+# This plugin checks memory usage of Watchguard device and returns memory performance data
 # Usage: check_wg_mem.sh [options]
 # -h | --host: ip of device.
 # -w | --warning: % of memory warning.
@@ -151,12 +151,12 @@ output="Memory usage: $percent_used_mem%"
 perf="| %mem_used=$percent_used_mem%;$warning;$critical;0;100 %swap_used=$percent_used_swap%;$warning;$critical;0;100 mem_used=$(echo $used_mem)KB;;;0;$total_mem mem_free=$(echo $free_mem)KB;;;0;$total_mem swap_used=$(echo $used_swap)KB;;;0;$total_swap swap_free=$(echo $free_swap)KB;;;0;$total_swap"
 
 # Check SNMP command result
-if [ $(echo $percent_used_mem'>'$critical | bc -l) -eq 1 ]
+if [[ $(echo $percent_used_mem'>'$critical | bc -l) -eq 1 ]]
 then
     echo "Critical. $output $perf"
     exit 2
 fi
-if [ $(echo $percent_used_mem'>'$warning | bc -l) -eq 1 ] 
+if [[ $(echo $percent_used_mem'>'$warning | bc -l) -eq 1 ]] 
 then
     echo "Warning. $output $perf"
     exit 1
