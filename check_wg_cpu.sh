@@ -106,7 +106,7 @@ then
     echo "Unknown: username and/or password can not be empty"
     exit 3
 fi
-if [[ $warning -gt $critical ]]
+if [[ $(echo $warning'>'$critical | bc -l) -eq 1 ]]
 then
     echo "Unknown: Critical must be higher than warning"
     exit 3
