@@ -72,7 +72,7 @@ while [ $# -gt 0 ]; do
       exit 3
       ;;
     *)
-      >&2 printf "Error: Invalid argument\n"
+      >&2 printf "Error: Invalid argument: $1\n"
       exit 3
       ;;
   esac
