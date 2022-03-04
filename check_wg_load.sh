@@ -1,6 +1,6 @@
 #!/bin/bash
 # check_wg_load for Nagios
-# Version: 0.1
+# Version: 1.0
 # March 2022 - Juan Granados
 #---------------------------------------------------
 # This plugin checks CPU load of Watchguard device and returns load performance data
@@ -14,8 +14,8 @@
 # -c15 | --critical15: load15 critical. Default: 1.
 # -a | --auto: auto detects number of cores and multiply warning and critical by cores.
 #              Ex. warning=0.7 and critical=1 will be w=2.8 and c=4 on a device with 4 cores.
-# -v | --version: snmp version. Depends of version you must specify.
-#   2: -s | --string: snmp community string.
+# -v | --version: snmp version. Depends of version you must specify. Defeault 2.
+#   2: -s | --string: snmp community string. Default public.
 #   3: -u | --user: user. -p | --pass: password.
 # Example: check_wg_load.sh -h 192.168.2.100 -a
 # Example: check_wg_load.sh -h 192.168.2.100 -c1 1 -w1 0.7 -w5 0.5 -c5 0.8 -w15 0.5 -c15 0.6 -v 2 -s publicwg -a
