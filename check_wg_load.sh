@@ -14,7 +14,7 @@
 # -c15 | --critical15: load15 critical. Default: 1.
 # -a | --auto: auto detects number of cores and multiply warning and critical by cores.
 #              Ex. warning=0.7 and critical=1 will be w=2.8 and c=4 on a device with 4 cores.
-# -v | --version: snmp version. Depends of version you must specify. Defeault 2.
+# -v | --version: snmp version. Default 2. Depends on version you must specify:
 #   2: -s | --string: snmp community string. Default public.
 #   3: -u | --user: user. -p | --pass: password.
 # Example: check_wg_load.sh -h 192.168.2.100 -a
@@ -102,7 +102,7 @@ while [ $# -gt 0 ]; do
       echo "   -c15 | --critical5: load15 critical. Default 1"
       echo "   -a | --auto: auto detects number of cores and multiply warning and critical by cores."
       echo "                Ex. warning=0.7 and critical=1 will be w=2.8 and c=4 on a device with 4 cores"
-      echo "   -v | --version: snmp version. Depends of version you must specify. Default 2"
+      echo "   -v | --version: snmp version. Default 2. Depends on version you must specify:"
       echo "       2: -s | --string: snmp community string. Default public"
       echo "       3: -u | --user: user. -p | --pass: password"
       echo "Example: check_wg_load.sh -h 192.168.2.100 -a"

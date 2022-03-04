@@ -6,10 +6,10 @@
 # This plugin checks CPU usage of Watchguard device and returns CPU performance data.
 # Usage: check_wg_cpu.sh [options]
 # -h | --host: ip of device.
-# -w | --warning: % of cpu warning.
-# -c | --critical: % of cpu critical.
-# -v | --version: snmp version. Depends of version you must specify.
-#   2: -s | --string: snmp community string.
+# -w | --warning: % of cpu warning. Default 90.
+# -c | --critical: % of cpu critical. Default 100.
+# -v | --version: snmp version. Default 2. Depends on version you must specify:
+#   2: -s | --string: snmp community string. Default public.
 #   3: -u | --user: user. -p | --pass: password.
 # Example: check_wg_cpu.sh -h 192.168.2.100
 # Example: check_wg_cpu.sh -h 192.168.2.100 -c 80 -w 90 -v 2 -s publicwg
@@ -63,7 +63,7 @@ while [ $# -gt 0 ]; do
       echo "   -h | --host: ip of device. Ex: 192.168.2.100"
       echo "   -w | --warning: % of cpu warning. Default 90"
       echo "   -c | --critical: % of cpu critical. Defaul 100"
-      echo "   -v | --version: snmp version. Depends of version you must specify. Default 2"
+      echo "   -v | --version: snmp version. Default 2. Depends on version you must specify:"
       echo "       2: -s | --string: snmp community string. Default public"
       echo "       3: -u | --user: user. -p | --pass: password"
       echo "Example: check_wg_cpu.sh -h 192.168.2.100"

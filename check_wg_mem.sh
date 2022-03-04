@@ -1,15 +1,15 @@
 #!/bin/bash
-# check_mem_cpu for Nagios
+# check_wg_memory for Nagios
 # Version: 0.1
 # March 2022 - Juan Granados
 #---------------------------------------------------
 # This plugin checks memory usage of Watchguard device and returns memory performance data
 # Usage: check_wg_mem.sh [options]
 # -h | --host: ip of device.
-# -w | --warning: % of memory warning.
-# -c | --critical: % of memory critical.
-# -v | --version: snmp version. Depends of version you must specify.
-#   2: -s | --string: snmp community string.
+# -w | --warning: % of memory warning. Default 85.
+# -c | --critical: % of memory critical. Default 95.
+# -v | --version: snmp version. Default 2. Depends on version you must specify:
+#   2: -s | --string: snmp community string. Default public.
 #   3: -u | --user: user. -p | --pass: password.
 # Example: check_wg_mem.sh -h 192.168.2.100
 # Example: check_wg_mem.sh -h 192.168.2.100 -c 80 -w 90 -v 2 -s publicwg
@@ -64,9 +64,9 @@ while [ $# -gt 0 ]; do
     --help)
       echo "Usage: check-wg_cpu.sh [options]"
       echo "   -h | --host: ip of device. Ex: 192.168.2.100"
-      echo "   -w | --warning: % of cpu warning. Default 90"
-      echo "   -c | --critical: % of cpu critical. Defaul 100"
-      echo "   -v | --version: snmp version. Depends of version you must specify. Default 2"
+      echo "   -w | --warning: % of cpu warning. Default 85"
+      echo "   -c | --critical: % of cpu critical. Defaul 95"
+      echo "   -v | --version: snmp version. Default 2. Depends on version you must specify:"
       echo "       2: -s | --string: snmp community string. Default public"
       echo "       3: -u | --user: user. -p | --pass: password"
       echo "Example: check_wg_cpu.sh -h 192.168.2.100"
