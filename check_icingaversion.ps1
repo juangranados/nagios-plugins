@@ -1,8 +1,8 @@
 <#
 .SYNOPSIS
-	Check version Icinga Windows Agent.
+    Check version Icinga Windows Agent.
 .DESCRIPTION
-	Check version Icinga Windows Agent and optionally updates it.
+    Check version Icinga Windows Agent and optionally updates it.
 .OUTPUTS
     OK: Version up to date.
     WARNING: Version needs updating.
@@ -15,13 +15,13 @@
     Default: "http://packages.icinga.com/windows/Icinga2-v2.11.11-x86_64.msi"
 .PARAMETER update
     Updates agent without modify configuration. Requires script "install_icinga.ps1" in the same directory.
-    Creates a scheduled task to run "install_icinga.ps1" in 2 minutes and update agent.
+    Creates a scheduled task to run "install_icinga.ps1" in 2 minutes and updates agent.
 .PARAMETER changeLoginToSystem
     Changes login service from Network Service to System after updating.
 .EXAMPLE
     check_icingaversion.ps1 -lastVersion "2.11.11" -downloadURL "http://packages.icinga.com/windows/Icinga2-v2.11.11-x86_64.msi" -update -changeLoginToSystem
 .NOTES 
-	Author:	Juan Granados
+    Author:	Juan Granados
 #>
 Param(
     [Parameter(Mandatory = $false)]
