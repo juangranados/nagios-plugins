@@ -19,8 +19,8 @@
 #---------------------------------------------------
 
 # Default variables
-warning=90
-critical=100
+warning=85
+critical=95
 version="2"
 community="public"
 timeout="10"
@@ -146,9 +146,13 @@ else
   percent_used_swap=0
 fi
 used_mem=`echo "$total_mem - $free_mem" | bc -l`
+used_mem_warning=`echo "($total_mem * $warning) / 100" | bc -l | cut -d. -f1`
+used_mem_critical=`echo "($total_mem * $critical) / 100" | bc -l | cut -d. -f1`
+free_mem_warning=`echo "$total_mem - $used_mem_warning" | bc -l | cut -d. -f1`
+free_mem_critical=`echo "$total_mem - $used_mem_critical" | bc -l | cut -d. -f1`
 used_swap=`echo "$total_swap - $free_swap" | bc -l`
 output="Memory usage: $percent_used_mem%"
-perf="| %mem_used=$percent_used_mem%;$warning;$critical;0;100 %swap_used=$percent_used_swap%;$warning;$critical;0;100 mem_used=$(echo $used_mem)KB;;;0;$total_mem mem_free=$(echo $free_mem)KB;;;0;$total_mem swap_used=$(echo $used_swap)KB;;;0;$total_swap swap_free=$(echo $free_swap)KB;;;0;$total_swap"
+perf="| %mem_used=$percent_used_mem%;$warning;$critical;0;100 %swap_used=$percent_used_swap%;;;0;100 mem_used=$(echo $used_mem)KB;$used_mem_warning;$used_mem_critical;0;$total_mem mem_free=$(echo $free_mem)KB;$free_mem_warning;$free_mem_critical;0;$total_mem swap_used=$(echo $used_swap)KB;;;0;$total_swap swap_free=$(echo $free_swap)KB;;;0;$total_swap"
 
 # Check SNMP command result
 if [[ $(echo $percent_used_mem'>'$critical | bc -l) -eq 1 ]]
