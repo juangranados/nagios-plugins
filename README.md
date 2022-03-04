@@ -13,3 +13,6 @@ Several Nagios/Icinga Plugins written in PowerShell. All of them return Nagios p
 - [Windows Server Backup](https://github.com/juangranados/nagios-plugins/blob/master/check_wsb.ps1): Check Windows Server Backup last backup.
 - [Windows drives fragmentation](https://github.com/juangranados/nagios-plugins/blob/master/check_diskdefragstatus.ps1): Check Windows drives fragmentation and optionally defrag them.
 - [Linux disk queue](https://github.com/juangranados/nagios-plugins/blob/master/check_diskq.sh): Check Linux disk queue using iostat.
+- [Watchguard CPU](https://github.com/juangranados/nagios-plugins/blob/master/check_wg_cpu.sh): Check Watchguard CPU.
+- [Watchguard Load](https://github.com/juangranados/nagios-plugins/blob/master/check_wg_cpu.sh): Check Watchguard Load 1, 5 and 15.
+- [Watchguard Memory](https://github.com/juangranados/nagios-plugins/blob/master/check_wg_cpu.sh): Check Watchguard memory.
