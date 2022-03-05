@@ -34,7 +34,6 @@ critical15=1
 version="2"
 community="public"
 timeout="10"
-host=""
 auto=0
 oid_num_cpu="1.3.6.1.2.1.25.3.3.1.2"
 oid_load1="1.3.6.1.4.1.2021.10.1.3.1"
@@ -92,7 +91,7 @@ while [ $# -gt 0 ]; do
       auto=1
       ;;
     --help)
-      echo "Usage: check-wg_cpu.sh [options]"
+      echo "Usage: check_wg_cpu.sh [options]"
       echo "   -h | --host: ip of device. Ex: 192.168.2.100"
       echo "   -w1 | --warning1: load1 warning. Default: 0.7"
       echo "   -c1 | --critical: load1 critical. Default 1"
@@ -119,7 +118,7 @@ while [ $# -gt 0 ]; do
 done
 
 # Check arguments
-if ! [[ $(command -v snmpget) ]]
+if ! [[ $(command -v snmpwalk) ]]
 then
     echo "snmpget could not be found. Please install it and try again"
     exit 3
@@ -174,7 +173,7 @@ else
 fi
 
 # Run SNMP Command
-cpu=`snmpget $args $host $oid_load1 $oid_load5 $oid_load15 2> /dev/null`
+cpu=`snmpwalk $args $host $oid_load1 $oid_load5 $oid_load15 2> /dev/null`
 if [[ -z $cpu ]]
 then 
   echo "Unknown: cpu stats not found"

@@ -1,6 +1,6 @@
 #!/bin/bash
 # check_wg_memory for Nagios
-# Version: 0.1
+# Version: 1.0
 # March 2022 - Juan Granados
 #---------------------------------------------------
 # This plugin checks memory usage of Watchguard device and returns memory performance data
@@ -24,7 +24,6 @@ critical=95
 version="2"
 community="public"
 timeout="10"
-host=""
 oid_total_mem="1.3.6.1.4.1.2021.4.5.0"
 oid_free_mem="1.3.6.1.4.1.2021.4.11.0"
 oid_total_swap="1.3.6.1.4.1.2021.4.3.0"
@@ -62,7 +61,7 @@ while [ $# -gt 0 ]; do
       community="${1#*=}"
       ;;
     --help)
-      echo "Usage: check-wg_cpu.sh [options]"
+      echo "Usage: check_wg_cpu.sh [options]"
       echo "   -h | --host: ip of device. Ex: 192.168.2.100"
       echo "   -w | --warning: % of cpu warning. Default 85"
       echo "   -c | --critical: % of cpu critical. Defaul 95"
