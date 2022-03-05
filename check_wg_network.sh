@@ -13,6 +13,13 @@
 #   3: -u | --user: user. -p | --pass: password.
 # Example: check_wg_network.sh -h 192.168.2.100 -c 800000 -w 900000 -v 2 -s publicwg
 # Example: check_wg_network.sh -h 192.168.2.100 -c 800000 -w 900000 -v 3 -u read -p 1234567789
+#
+# TODO: https://networkengineering.stackexchange.com/questions/57435/network-bandwidth-utilization-with-snmp
+# ifHCInOctets: 1.3.6.1.2.1.31.1.1.1.6
+# ifHCOutOctets: 1.3.6.1.2.1.2.2.1.16
+# interface speed: 1.3.6.1.2.1.2.2.1.5
+# interface name: 1.3.6.1.2.1.2.2.1.2
+# Ex: snmpwalk -OQne -v 2c -c public 192.168.2.100 "1.3.6.1.2.1.2.2.1.16"
 #---------------------------------------------------
 # Reference https://techsearch.watchguard.com/KB/?type=KBArticle&SFDCID=kA22A000000HQ0PSAW&lang=en_US
 #---------------------------------------------------
