@@ -1,7 +1,7 @@
 
 #!/bin/bash
 # check_wg_network for Nagios
-# Version: 0.2
+# Version: 0.3
 # March 2022 - Juan Granados
 #---------------------------------------------------
 # This plugin checks network usage of Watchguard device and returns network performance data.
@@ -12,20 +12,13 @@
 # -v | --version: snmp version. Default 2. Depends on version you must specify:
 #   2: -s | --string: snmp community string. Default public.
 #   3: -u | --user: user. -p | --pass: password.
-# -i | --interfaces: list of interfaces to monitor. Default eth0. Ex: eth0 eth1 eth2 eth3
-# -p | --polling: polling time in seconds. Default 5.
+# -i | --interfaces: list of interfaces to monitor. Default all. Ex: eth0 eth1 eth2 eth3
+# -t | --time: polling time in seconds. Default 10.
 # -d | --dspeed: default speed of interfaces in case that snmp returns 0. Default 1000000000.
 # Example: check_wg_network.sh -h 192.168.2.100 -c 800000 -w 900000 -v 2 -s publicwg -i "eth0 eth1 vlan1"
-# Example: check_wg_network.sh -h 192.168.2.100 -c 800000 -w 900000 -v 3 -u read -p 1234567789 -i "eth0 eth1 eth4 vlan1"
-#
-# TODO: https://networkengineering.stackexchange.com/questions/57435/network-bandwidth-utilization-with-snmp
+# Example: check_wg_network.sh -h 192.168.2.100 -c 800000 -w 900000 -v 3 -u read -p 1234567789 -t 15
+# https://networkengineering.stackexchange.com/questions/57435/network-bandwidth-utilization-with-snmp
 # https://serverfault.com/questions/401162/how-to-get-interface-traffic-snmp-information-for-routers-cisco-zte-huawei
-# ifHCInOctets: 1.3.6.1.2.1.31.1.1.1.6
-# ifHCOutOctets: 1.3.6.1.2.1.2.2.1.16
-# interface speed: 1.3.6.1.2.1.2.2.1.5 (An estimate of the interface's current bandwidth in bits per second)
-# interface name: 1.3.6.1.2.1.2.2.1.2
-# Ex: snmpwalk -OQne -v 2c -c public 192.168.2.100 "1.3.6.1.2.1.2.2.1.16"
-# snmpwalk -OQne -v 2c -c 3digits.snmp 192.168.2.100 1.3.6.1.2.1.2.2.1.2 | grep -w -e eth0 -e eth1
 #---------------------------------------------------
 # Reference https://techsearch.watchguard.com/KB/?type=KBArticle&SFDCID=kA22A000000HQ0PSAW&lang=en_US
 #---------------------------------------------------
@@ -40,11 +33,10 @@ ifSpeed="1.3.6.1.2.1.2.2.1.5"
 ifHighSpeed="1.3.6.1.2.1.31.1.1.1.15"
 ifHCInOctets="1.3.6.1.2.1.31.1.1.1.6"
 ifHCOutOctets="1.3.6.1.2.1.2.2.1.16"
-interfaces="eth0"
-polling=5
+interfaces="all"
+polling=10
 dspeed=1000000000
 
-exitCode=0
 # Process arguments
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -80,7 +72,7 @@ while [ $# -gt 0 ]; do
       if [[ "$1" != *=* ]]; then shift; fi
       interfaces="${1#*=}"
       ;;
-    --polling*|-p*)
+    --time*|-t*)
       if [[ "$1" != *=* ]]; then shift; fi
       polling="${1#*=}"
       ;;
@@ -96,8 +88,11 @@ while [ $# -gt 0 ]; do
       echo "   -v | --version: snmp version. Default 2. Depends on version you must specify:"
       echo "       2: -s | --string: snmp community string. Default public"
       echo "       3: -u | --user: user. -p | --pass: password"
-      echo "Example: check_wg_cpu.sh -h 192.168.2.100 -c 80000 -w 90000 -v 2 -s publicwg"
-      echo "Example: check_wg_cpu.sh -h 192.168.2.100 -c 80000 -w 90000 -v 3 -u read -p 1234567789"
+      echo "   -i | --interfaces: list of interfaces to monitor. Default all. Ex: eth0 eth1 eth2 eth3"
+      echo "   -t | --time: polling time in seconds. Default 10."
+      echo "   -d | --dspeed: default speed of interfaces in case that snmp returns 0. Default 1000000000."
+      echo "Example: check_wg_cpu.sh -h 192.168.2.100 -c 80000 -w 90000 -v 2 -s publicwg -i 'eth0 vlan1 eth3'"
+      echo "Example: check_wg_cpu.sh -h 192.168.2.100 -c 80000 -w 90000 -v 3 -u read -p 1234567789 -t 15"
       exit 3
       ;;
     *)
@@ -108,8 +103,6 @@ while [ $# -gt 0 ]; do
   shift
 done
 function getInterfaceStats {
-  # 1000000 bits is 1 Megabite.
-  mbconversion=1000000 
   if [[ -z $1  ]]
   then
     echo "Unknown: interface cannot be null"
@@ -130,6 +123,7 @@ function getInterfaceStats {
     ifspeed=$dspeed
   fi
 
+  mbconversion=1000000 # 1000000 bits is 1 Megabite.
   result1In=`echo "$ifHCInOctets1" | grep $ifindex | cut -d = -f2 | cut -d " " -f2`
   result2In=`echo "$ifHCInOctets2" | grep $ifindex | cut -d = -f2 | cut -d " " -f2`
   calcIn=`echo "($result2In-$result1In)*8"| bc` # Multiply by 8 to convert octets into bits -> bites received in interval.
@@ -189,7 +183,16 @@ then
     echo "Unknown: Critical must be higher than warning"
     exit 3
 fi
-
+if ! [[ $polling =~ $re ]]
+then
+    echo "Unknown: polling must be a number"
+    exit 3
+fi
+if ! [[ $dspeed =~ $re ]]
+then
+    echo "Unknown: default speed must be a number"
+    exit 3
+fi
 # SNMP Command sintax
 if [[ $version -eq "2" ]]
 then
@@ -219,10 +222,14 @@ sleep $polling
 ifHCInOctets2=`snmpwalk $args $host $ifHCInOctets`
 ifHCOutOctets2=`snmpwalk $args $host $ifHCOutOctets`
 # Gets all interfaces
-IFS=' ' read -r -a array <<< "$interfaces"
+if [[ "$interfaces" = "all" ]]
+then
+  interfaces=`snmpwalk -OQne -v 2c -c 3digits.snmp 192.168.2.100 "1.3.6.1.2.1.31.1.1.1.1" | sed -r "s/.*?([\"'])(.*)\1.*/\2/"`
+fi
+IFS=' ' read -r -a array <<< $(echo $interfaces)
 for interface in "${array[@]}"
 do
-    getInterfaceStats "$interface"
+  getInterfaceStats "$interface"
 done
 
 # Check SNMP command result
