@@ -224,7 +224,7 @@ ifHCOutOctets2=`snmpwalk $args $host $ifHCOutOctets`
 # Gets all interfaces
 if [[ "$interfaces" = "all" ]]
 then
-  interfaces=`snmpwalk -OQne -v 2c -c 3digits.snmp 192.168.2.100 "1.3.6.1.2.1.31.1.1.1.1" | sed -r "s/.*?([\"'])(.*)\1.*/\2/"`
+  interfaces=`snmpwalk $args $host $ifName | sed -r "s/.*?([\"'])(.*)\1.*/\2/"`
 fi
 IFS=' ' read -r -a array <<< $(echo $interfaces)
 for interface in "${array[@]}"
