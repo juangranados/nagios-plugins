@@ -135,12 +135,12 @@ output="CPU usage: $cpu%"
 perf="| cpu=$cpu%;$warning;$critical;0;100"
 
 # Check SNMP command result
-if [[ $(echo $cpu'>'$critical | bc -l) -eq 1 ]]
+if [[ "$cpu" -gt "$critical" ]]
 then
     echo "Critical. $output $perf"
     exit 2
 fi
-if [[ $(echo $cpu'>'$warning | bc -l) -eq 1 ]] 
+if [[ "$cpu" -gt "$warning" ]] 
 then
     echo "Warning. $output $perf"
     exit 1
