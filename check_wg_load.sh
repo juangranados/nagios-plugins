@@ -173,21 +173,21 @@ else
 fi
 
 # Run SNMP Command
-cpu=`snmpwalk $args $host $oid_load1 $oid_load5 $oid_load15 2> /dev/null`
+cpu=`snmpget $args $host $oid_load1 $oid_load5 $oid_load15 2> /dev/null`
 if [[ -z $cpu ]]
 then 
   echo "Unknown: cpu stats not found"
   exit 3
 fi
+num_cores=`snmpwalk $args $host $oid_num_cpu | wc -l`
+if [[ -z $num_cores ]]
+then 
+  echo "Unknown: number of cores not found"
+  exit 3
+fi
 # If auto, update warning and critical
 if [[ $auto -eq 1 ]]
 then
-  num_cores=`snmpwalk $args $host 1.3.6.1.2.1.25.3.3.1.2 | wc -l`
-  if [[ -z $num_cores ]]
-  then 
-    echo "Unknown: number of cores not found"
-    exit 3
-  fi
   warning1=`echo "$num_cores * $warning1" | bc -l`
   critical1=`echo "$num_cores * $critical1" | bc -l`
   warning5=`echo "$num_cores * $warning5" | bc -l`
@@ -199,7 +199,7 @@ load1=`echo $cpu | cut -d \" -f2`
 load5=`echo $cpu | cut -d \" -f4`
 load15=`echo $cpu | cut -d \" -f6`
 output="CPU load average: $load1, $load5, $load15 "
-perf="| load1=$load1;$warning1;$critical1;; load5=$load5;$warning5;$critical5;; load15=$load15;$warning15;$critical15;;"
+perf="| load1=$load1;$warning1;$critical1;0;$num_cores load5=$load5;$warning5;$critical5;0;$num_cores load15=$load15;$warning15;$critical15;0;$num_cores"
 
 # Check SNMP command result
 if [[ $(echo $load1'>'$critical1 | bc -l) -eq 1 || $(echo $load5'>'$critical5 | bc -l) -eq 1 || $(echo $load15'>'$critical15 | bc -l) -eq 1 ]]
