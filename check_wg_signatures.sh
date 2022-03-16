@@ -9,9 +9,9 @@
 # -h | --host: ip of device.
 # -w | --warning: warning hours since last update. Default 24.
 # -c | --critical:  critical hours since last update. Default 48.
-# -v | --version: snmp version. Default 2. Depends on version you must specify:
 # -a | --antivirus: checks only Antivirus Service.
 # -i | --intrusion: checks only Intrusion Prevention Service.
+# -v | --version: snmp version. Default 2. Depends on version you must specify:
 #   2: -s | --string: snmp community string. Default public.
 #   3: -u | --user: user. -p | --pass: password.
 # Example: check_wg_signatures.sh -h 192.168.2.100 -s publicsnmp -a
