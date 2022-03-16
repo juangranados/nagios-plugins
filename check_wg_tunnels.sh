@@ -110,14 +110,33 @@ else
   exit 3
 fi
 
-#Get tunnels info
+# Get tunnels info
 localAddr=( $( snmpwalk $args $host $wgIpsecEndpointPairLocalAddr  | cut -d "=" -f2 | cut -d " " -f2 ) )
 peerAddr=( $( snmpwalk $args $host $wgIpsecEndpointPairPeerAddr  | cut -d "=" -f2 | cut -d " " -f2 ) )
 tunnels=( $( echo $tunnels ) )
 
-echo $localAddr
-echo $peerAddr
-echo $tunnels
+# Check tunnels
+for t in "${tunnels[@]}"
+do
+   up=0
+   local=`echo "$t"  | cut -d "-" -f1`
+   peer=`echo "$t"  | cut -d "-" -f2`
+   arraylength=${#localAddr[@]}
+   for (( i=0; i<${arraylength}; i++ ));
+    do
+      if [[ ("${localAddr[$i]}" = "$local") && ("${peerAddr[$i]}" = "$peer") ]]
+      then
+        up=1
+      fi
+    done
+    if [[ $up -eq 1 ]]
+    then
+      output="${output:+$output. }$t is up"
+    else
+    output="${output:+$output. }$t is down"
+    exitCode=2
+    fi
+done
 
 # Exit
 if [[ $exitCode -eq 0 ]]
