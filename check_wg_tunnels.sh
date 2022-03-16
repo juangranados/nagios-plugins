@@ -7,7 +7,7 @@
 # Usage: check_wg_tunnels.sh [options]
 # -h | --host: ip of device.
 # -t | --tunnels: list of tunnels to check. 
-#                 Syntax "localIP1-PeerIP2 localIP1-PeerIP2 localIPn-PeerIPn\"
+#                 Syntax "localIP1-PeerIP1 localIP2-PeerIP2 localIPn-PeerIPn"
 #                 Example: "80.24.56.73-90.123.124.34 100.234.45.47-90.12.45.123 123.234.43.65-65.234.56.78"
 # -v | --version: snmp version. Default 2. Depends on version you must specify:
 #   2: -s | --string: snmp community string. Default public.
@@ -61,7 +61,7 @@ while [ $# -gt 0 ]; do
       echo "       2: -s | --string: snmp community string. Default public"
       echo "       3: -u | --user: user. -p | --pass: password"
       echo "   -t | --tunnels: list of tunnels to check"
-      echo "                   Syntax \"localIP1-PeerIP2 localIP1-PeerIP2 localIPn-PeerIPn\""
+      echo "                   Syntax \"localIP1-PeerIP1 localIP2-PeerIP2 localIPn-PeerIPn\""
       echo "                   Example: \"80.24.56.73-90.123.124.34 100.234.45.47-90.12.45.123 123.234.43.65-65.234.56.78\""
       echo "Example: check_wg_tunnels.sh -h 192.168.2.100 -s publicsnmp -t \"80.24.56.73-90.123.124.34 100.234.45.47-90.12.45.123\""
       echo "Example: check_wg_tunnels.sh -h 192.168.2.100 -v 3 -u read -p 1234567789 -t \"80.24.56.73-90.123.124.34 100.234.45.47-90.12.45.123 123.234.43.65-65.234.56.78\""
