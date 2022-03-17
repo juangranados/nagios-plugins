@@ -3,11 +3,11 @@
 # Version: 1.0
 # March 2022 - Juan Granados
 #---------------------------------------------------
-# This plugin checks if one or more of IPSec tunnels are active on a Watchguard device.
+# This plugin checks if one or more of Branch Office VPN Tunnels are active on a Watchguard device.
 # Usage: check_wg_tunnels.sh [options]
 # -h | --host: ip of device.
-# -t | --tunnels: list of tunnels to check. 
-#                 Syntax "localIP1-PeerIP1 localIP2-PeerIP2 localIPn-PeerIPn"
+# -t | --tunnels: list of tunnels to check. Array of pairs of gateways.
+#                 Syntax "localGwIP1-peerGwIP1 localGwIP2-peerGwIP2 localGwIPn-peerGwIPn"
 #                 Example: "80.24.56.73-90.123.124.34 100.234.45.47-90.12.45.123 123.234.43.65-65.234.56.78"
 # -v | --version: snmp version. Default 2. Depends on version you must specify:
 #   2: -s | --string: snmp community string. Default public.
@@ -55,13 +55,14 @@ while [ $# -gt 0 ]; do
       tunnels="${1#*=}"
       ;;
     --help)
+      echo "This plugin checks if one or more of Branch Office VPN Tunnels are active on a Watchguard device."
       echo "Usage: check_wg_tunnels.sh [options]"
       echo "   -h | --host: ip of device. Ex: 192.168.2.100"
       echo "   -v | --version: snmp version. Default 2. Depends on version you must specify:"
       echo "       2: -s | --string: snmp community string. Default public"
       echo "       3: -u | --user: user. -p | --pass: password"
-      echo "   -t | --tunnels: list of tunnels to check"
-      echo "                   Syntax \"localIP1-PeerIP1 localIP2-PeerIP2 localIPn-PeerIPn\""
+      echo "   -t | --tunnels: list of tunnels to check. Array of pairs of gateways."
+      echo "                   Syntax \"localGwIP1-peerGwIP1 localGwIP2-peerGwIP2 localGwIPn-peerGwIPn\""
       echo "                   Example: \"80.24.56.73-90.123.124.34 100.234.45.47-90.12.45.123 123.234.43.65-65.234.56.78\""
       echo "Example: check_wg_tunnels.sh -h 192.168.2.100 -s publicsnmp -t \"80.24.56.73-90.123.124.34 100.234.45.47-90.12.45.123\""
       echo "Example: check_wg_tunnels.sh -h 192.168.2.100 -v 3 -u read -p 1234567789 -t \"80.24.56.73-90.123.124.34 100.234.45.47-90.12.45.123 123.234.43.65-65.234.56.78\""
@@ -138,12 +139,12 @@ do
    peer=`echo "$t"  | cut -d "-" -f2`
    if ! [[ `echo "$t"  | grep -` ]]
    then
-    echo "Unknown: bad 't' parameter. Syntax \"localIP1-PeerIP2 localIP1-PeerIP2 localIPn-PeerIPn\""
+    echo "Unknown: bad 't' parameter. Syntax \"localGwIP1-peerGwIP1 localGwIP2-peerGwIP2 localGwIPn-peerGwIPn\""
     exit 3
    fi
    if [[ $local = $peer ]]
    then
-    echo "Unknown: local IP and peer IP can not be the same. Syntax \"localIP1-PeerIP2 localIP1-PeerIP2 localIPn-PeerIPn\""
+    echo "Unknown: local IP and peer IP can not be the same. Syntax \"localGwIP1-peerGwIP1 localGwIP2-peerGwIP2 localGwIPn-peerGwIPn\""
     exit 3
    fi
    if ! ipvalid "$local"
