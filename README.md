@@ -1,6 +1,6 @@
 # Nagios/Icinga plugins
 
-Several Nagios/Icinga Plugins written in PowerShell. Most of them return Nagios performance data too.
+Several Nagios/Icinga Plugins written in PowerShell and Shell. Most of them return Nagios performance data too.
 
 - [Active Directory Replication](https://github.com/juangranados/nagios-plugins/blob/master/check_adreplication.ps1): Check AD Replication in a DC Server.
 - [Azure AD Connect](https://github.com/juangranados/nagios-plugins/blob/master/check_azureadconnectsync.ps1): Check Azure AD Connect status and last replication.
