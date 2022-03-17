@@ -144,7 +144,7 @@ do
    fi
    if [[ $local = $peer ]]
    then
-    echo "Unknown: local IP and peer IP can not be the same. Syntax \"localGwIP1-peerGwIP1 localGwIP2-peerGwIP2 localGwIPn-peerGwIPn\""
+    echo "Unknown: local gateway IP and peer gateway IP can not be the same. Syntax \"localGwIP1-peerGwIP1 localGwIP2-peerGwIP2 localGwIPn-peerGwIPn\""
     exit 3
    fi
    if ! ipvalid "$local"

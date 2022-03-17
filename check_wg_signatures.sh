@@ -4,7 +4,7 @@
 # March 2022 - Juan Granados
 #---------------------------------------------------
 # This plugin checks Gateway Antivirus Service and/or Intrusion Prevention Service 
-# update time of Watchguard device.
+# update time in a Watchguard device.
 # Usage: check_wg_signatures.sh [options]
 # -h | --host: ip of device.
 # -w | --warning: warning hours since last update. Default 24.
