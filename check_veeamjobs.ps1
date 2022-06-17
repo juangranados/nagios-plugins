@@ -41,7 +41,7 @@ $global:nagiosOutput = @()
 $WarningPreference = 'SilentlyContinue'
 Add-PSSnapin -Name VeeamPSSnapIn -ErrorAction SilentlyContinue
 function Get-JobStatus ([string]$name, [string]$result, [string]$state, [datetime]$lastRun) {
-    $jobInfo = "Name: $name - Result: $result - State: $state - Last run: $("$($lastRun.ToShortDateString()) at $($lastRun.ToShortTimeString())")."
+    $jobInfo = "Name: $name - Result: $result - State: $state - Last run ending: $("$($lastRun.ToShortDateString()) at $($lastRun.ToShortTimeString())")."
     Write-Verbose $jobInfo
     # https://helpcenter.veeam.com/docs/backup/powershell/enums.html?ver=110#vbrsessionresult
     if ($result -eq 'Failed' -or ($lastRun -lt (Get-Date).AddHours(-$critical))) {
@@ -78,7 +78,7 @@ if ($jobs -ne "all") {
 if ($computerJobs.Length -gt 0) {
     foreach ($job in $computerJobs) {
         if ($jobs -eq "all" -or $jobs -like $job.Name) {
-            Get-JobStatus $($job.Name) $($job.GetLastResult()) $($job.findlastsession().state) $($job.LatestRunLocal)
+            Get-JobStatus $($job.Name) $($job.GetLastResult()) $($job.findlastsession().state) $($job.FindLastbasesession().EndTime)
         }
     }
 }
