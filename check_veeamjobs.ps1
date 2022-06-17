@@ -50,7 +50,10 @@ function Get-JobStatus ([string]$name, [string]$result, [string]$state, [datetim
     }
     elseif ($result -eq 'Warning' -or ($lastRun -lt (Get-Date).AddHours(-$warning)) -or ($state -match "waiting")) {
         $global:nagiosOutput += "Warning -> $jobInfo"
-        $global:nagiosStatus = 1
+        if ($global:nagiosStatus -eq 0) {
+            $global:nagiosStatus = 1
+        }
+        
     }
     else {
         $global:nagiosOutput += "Ok: -> $jobInfo"
@@ -90,12 +93,14 @@ if ($tapeJobs.Length -gt 0) {
     }
 }
 if ($global:nagiosStatus -eq 2) {
-    Write-Output "CRITICAL"
+    Write-Output "CRITICAL -> One or more jobs are in critical state"
+    Write-Output "--------------------------------------------------"
     Write-Output $global:nagiosOutput
     Exit(2)
 }
 if ($global:nagiosStatus -eq 1) {
-    Write-Output "WARNING"
+    Write-Output "WARNING -> One or more jobs are in warning state"
+    Write-Output "------------------------------------------------"
     Write-Output $global:nagiosOutput
     Exit(1)
 }
@@ -103,6 +108,7 @@ if ($global:nagiosOutput.Length -eq 0) {
     Write-Output "UNKNOWN: No jobs found"
     Exit(3)
 }
-Write-Output "OK"
+Write-Output "OK -> All jobs are ok"
+Write-Output "---------------------"
 Write-Output $global:nagiosOutput
 Exit(0)
