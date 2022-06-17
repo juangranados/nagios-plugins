@@ -43,17 +43,20 @@ Add-PSSnapin -Name VeeamPSSnapIn -ErrorAction SilentlyContinue
 function Get-JobStatus ([string]$name, [string]$result, [string]$state, [datetime]$lastRun) {
     $jobInfo = "Name: $name - Result: $result - State: $state - Last run: $("$($lastRun.ToShortDateString()) at $($lastRun.ToShortTimeString())")."
     Write-Verbose $jobInfo
-    if (($result -ne 'Warning' -and $result -ne "Success") -or $lastRun -lt (Get-Date).AddHours(-$critical)) {
+    # https://helpcenter.veeam.com/docs/backup/powershell/enums.html?ver=110#vbrsessionresult
+    if ($result -eq 'Failed' -or ($lastRun -lt (Get-Date).AddHours(-$critical))) {
         $global:nagiosOutput += "Critical -> $jobInfo"
         $global:nagiosStatus = 2
     }
-    elseif ($result -eq 'Warning' -or $lastRun -lt (Get-Date).AddHours(-$warning)) {
+    elseif ($result -eq 'Warning' -or ($lastRun -lt (Get-Date).AddHours(-$warning)) -or ($state -match "waiting")) {
         $global:nagiosOutput += "Warning -> $jobInfo"
         $global:nagiosStatus = 1
     }
     else {
         $global:nagiosOutput += "Ok: -> $jobInfo"
-    }   
+    }
+    Write-Verbose "Nagios output: $global:nagiosOutput"
+    Write-Verbose "Nagios status: $global:nagiosStatus"
 }
 try {
     Write-Verbose "Getting jobs"
