@@ -85,11 +85,13 @@ if ($computerJobs.Length -gt 0) {
         }
     }
 }
+$i=0
 if ($tapeJobs.Length -gt 0) {
     foreach ($job in $tapeJobs) {
         if ($jobs -eq "all" -or $jobs -like $job.Name) {
-            Get-JobStatus $($job.Name) $($job.LastResult) $($job.LastState) $((Get-VBRSession -Job $TapeJobS[0] -Last).EndTime)
+            Get-JobStatus $($job.Name) $($job.LastResult) $($job.LastState) $((Get-VBRSession -Job $TapeJobS[$i] -Last).EndTime)
         }
+        $i++
     }
 }
 if ($global:nagiosStatus -eq 2) {
