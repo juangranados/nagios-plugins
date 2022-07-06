@@ -31,7 +31,10 @@ $SyncErrors = 0
 $NagiosStatus = 0
 $NagiosOutput = ""
 $Syncs = 0
-
+if (!(Get-ADDomainController -filter *).count) {
+	Write-Host "OK: There is only one domain controller. | Syncs=0;;;; SyncErrors=0;$Warning;$Critical;;"
+	Exit(0)
+}
 # Get AD Replication Status for this DC
 $SyncResults = Get-WmiObject -Namespace root\MicrosoftActiveDirectory -Class MSAD_ReplNeighbor -ComputerName $env:COMPUTERNAME |
 Select-Object SourceDsaCN, NamingContextDN, LastSyncResult, NumConsecutiveSyncFailures, @{N = "LastSyncAttempt"; E = { $_.ConvertToDateTime($_.TimeOfLastSyncAttempt) } }, @{N = "LastSyncSuccess"; E = { $_.ConvertToDateTime($_.TimeOfLastSyncSuccess) } } 
